@@ -20,6 +20,7 @@ on:
       - 'tests/test_review_report.py'
       - 'tests/test_shacl_review.py'
       - 'tests/test_tigergraph_staging.py'
+      - 'tests/test_tigergraph_reconcile_promotion.py'
       - '.github/workflows/ontology-neem-ci.yml'
   workflow_dispatch:
 
@@ -60,4 +61,5 @@ jobs:
             tests/test_axiom_checks.py \
             tests/test_review_report.py \
             tests/test_shacl_review.py \
-            tests/test_tigergraph_staging.py
+            tests/test_tigergraph_staging.py \
+            tests/test_tigergraph_reconcile_promotion.py
