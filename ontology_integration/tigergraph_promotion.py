@@ -14,10 +14,11 @@ def approved_projection(assertions, *, approved_assertion_ids, ontology_sha256,
                         reviewer, approval_reason):
     if not reviewer or not reviewer.strip() or not approval_reason or not approval_reason.strip():
         raise ValueError("Reviewer and approval reason are mandatory")
+    approved_assertion_ids=tuple(approved_assertion_ids)
     allow=set(approved_assertion_ids)
     if not allow:
         raise ValueError("Empty approval list: fail closed")
-    if len(allow)!=len(list(approved_assertion_ids)):
+    if len(allow)!=len(approved_assertion_ids):
         raise ValueError("Approval manifest contains duplicate assertion IDs")
     assertions=tuple(assertions)
     by_id={a.assertion_id:a for a in assertions}
