@@ -74,7 +74,9 @@ def _verify_and_normalize(records: list[dict], chunk, full_text: str) -> list[di
     result = []
     for record in records:
         row = dict(record)
-        if "subject_iri" in row or ("object" in row and row["object"].get("kind") == "iri"):
+        if ("subject_iri" in row or
+            (isinstance(row.get("object"), dict) and row["object"].get("kind") == "iri"
+             and row.get("predicate_iri") != str(RDF.type))):
             raise ValueError("Raw entity IRIs require a separate verified linker")
         subject = row.pop("subject_mention", None)
         if not isinstance(subject, dict):
