@@ -12,6 +12,7 @@ on:
       - 'tests/test_semantic_map.py'
       - 'tests/test_neem_*.py'
       - 'tests/test_document_ingestion.py'
+      - 'tests/test_document_*.py'
       - '.github/workflows/ontology-neem-ci.yml'
   workflow_dispatch:
 
@@ -43,4 +44,6 @@ jobs:
             tests/test_neem_identity.py \
             tests/test_neem_full_scan.py \
             tests/test_neem_ingest.py \
-            tests/test_document_ingestion.py
+            tests/test_document_ingestion.py \
+            tests/test_document_pipeline.py \
+            tests/test_document_provider.py
