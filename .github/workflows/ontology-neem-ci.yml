@@ -15,6 +15,9 @@ on:
       - 'tests/test_document_*.py'
       - 'tests/test_semantic_validation.py'
       - 'tests/test_entity_resolution.py'
+      - 'tests/test_m6_remaining.py'
+      - 'tests/test_axiom_checks.py'
+      - 'tests/test_review_report.py'
       - '.github/workflows/ontology-neem-ci.yml'
   workflow_dispatch:
 
@@ -50,4 +53,7 @@ jobs:
             tests/test_document_pipeline.py \
             tests/test_document_provider.py \
             tests/test_semantic_validation.py \
-            tests/test_entity_resolution.py
+            tests/test_entity_resolution.py \
+            tests/test_m6_remaining.py \
+            tests/test_axiom_checks.py \
+            tests/test_review_report.py
