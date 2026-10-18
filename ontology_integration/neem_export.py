@@ -5,19 +5,22 @@ import hashlib
 import json
 from pathlib import Path
 from .neem_reconstruction import extract_page, profile_relationships
+from .sqlite_neem import profile_sqlite
 
 
 def fingerprint(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def export_snapshot(path, *, ontology_path, neem_id, tables, output_dir,
+def export_snapshot(path, *, ontology_path, neem_id, tables=None, output_dir,
                     page_size=500, resume=False):
     """Export deterministic JSONL page files with checkpoint-bound source hashes.
 
     A source changed since a checkpoint is rejected. Only the caller owns
     the output directory. No automatic TigerGraph or OWL writes occur.
     """
+    if tables is None:
+        tables = [item["table"] for item in profile_sqlite(path)["tables"] if item["rows"] > 0]
     if page_size < 1 or not tables or not neem_id.strip():
         raise ValueError("Need page_size > 0, table names, and neem_id")
     directory = Path(output_dir)
@@ -34,7 +37,8 @@ def export_snapshot(path, *, ontology_path, neem_id, tables, output_dir,
             raise ValueError("Existing manifest; pass resume=True or use another output directory")
         if any(prior.get(k) != v for k,v in settings.items()):
             raise ValueError("Checkpoint settings or source fingerprint changed")
-        verify_export(directory)\n        completed = list(prior.get("pages", []))
+        verify_export(directory)
+        completed = list(prior.get("pages", []))
     else:
         completed = []
         manifest_path.write_text(json.dumps({**settings, "pages": []}, indent=2) + "\n")
@@ -94,7 +98,7 @@ def main():
     parser.add_argument("sqlite")
     parser.add_argument("--ontology", required=True)
     parser.add_argument("--neem-id", required=True)
-    parser.add_argument("--table", action="append", required=True)
+    parser.add_argument("--table", action="append", help="Specific table(s); omit to export all populated tables")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--page-size", type=int, default=500)
     parser.add_argument("--resume", action="store_true")
