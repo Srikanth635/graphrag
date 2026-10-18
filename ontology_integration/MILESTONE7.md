@@ -122,3 +122,65 @@ must inspect/reconcile before retry.
    with source provenance and conflict gates.
 5. Integrate ingestion into GraphRAG's service without bypassing its
    schema-aware document pipeline.
+
+## Second increment — read-back reconciliation and approved-only projection
+
+Additional modules on `neemGraph`:
+
+- `tigergraph_reconcile.py`: after explicit staging writes, calls
+  `getVerticesById` to compare exact returned attributes and IDs against
+  the staging plan. Missing, changed, duplicate or unexpected vertices
+  trigger a hard failure; the adapter never silently rewrites them.
+  This operation is **not transactional**; partial writes may have occurred
+  if the remote connection fails midway.
+- `tigergraph_promotion.py`: produces a **projection-only** JSON artifact
+  for explicitly approved assertion IDs when their Milestone 3 status is
+  already `validated` or `asserted`. The input must include an exact
+  ontology fingerprint, reviewer and rationale. Candidate, quarantined,
+  inferred, retracted and missing IDs are rejected. This does **not**
+  write facts into the production graph and does not itself verify that a
+  purported `validated` record was genuinely reviewed.
+- `gsql/ontology_staging.gsql`: version-reviewable staging graph proposal.
+- `tests/test_tigergraph_reconcile_promotion.py`: fake-server round-trip,
+  idempotent repeat, tampered read-back and approval guard tests.
+
+### Local acceptance evidence
+
+The previously exported `milestone7_pickup_stage_plan.json` was inspected
+against its SHA-256 canonical payload and has **13 unique vertex IDs**, each
+with a source locator. All 13 remain `candidate`. Consequently **zero**
+pickup assertions currently qualify for promotion into the trusted graph.
+No status is modified merely for the purpose of demonstrating ingestion.
+
+The exact branch's GitHub CI tests are committed but the completed CI outcome
+is **not yet available**. The remote TigerGraph server is unavailable in this
+execution environment: Docker, pyTigerGraph and TigerGraph endpoint credentials
+are absent. No live schema installation, insertion, reconciliation or GraphRAG
+query can truthfully be claimed.
+
+### Safe runbook for later live test
+
+1. Check out `neemGraph`, run its regression suite and explicitly verify
+   the current GitHub Actions result.
+2. Review `gsql/ontology_staging.gsql` against your TigerGraph release and
+   create a dedicated staging graph. Never overwrite the existing GraphRAG
+   graph schema.
+3. Export the assertion JSONL into a staging plan using
+   `tigergraph_stage_cli.py`; examine source fingerprints, statuses and
+   counts before proceeding.
+4. Obtain an authenticated, **staging-graph-scoped** pyTigerGraph connection;
+   verify its `getVertexTypes` and `getVerticesById` response shapes.
+5. Call `apply_and_reconcile(plan,connection=connection,
+   expected_graph="OntologyStagingGraph",enable_write=False)` first.
+6. Only after authorization, set `enable_write=True` and require complete
+   read-back reconciliation. Inspect partial writes if an exception occurs.
+7. Separately review individual assertions and identity links before
+   building a trusted GraphRAG projection.
+
+### Milestone closure
+
+**Offline staging/projection adapters are implemented; full Milestone 7
+production acceptance remains blocked on a live TigerGraph instance, exact
+branch CI, approved data, and a schema-specific trusted GraphRAG
+integration/retrieval test.** The reader must not infer those capabilities
+from successful offline schema/projection checks.
