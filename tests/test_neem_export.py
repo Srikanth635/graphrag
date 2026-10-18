@@ -50,3 +50,14 @@ def test_tamper_and_source_change_rejected(tmp_path):
         export_snapshot(db, ontology_path=ontology, neem_id="pickup",
                         tables=["DemoDAO"], output_dir=dest,
                         page_size=1, resume=True)
+
+
+def test_all_populated_auto_discovery(tmp_path):
+    db, ontology = sample(tmp_path)
+    with sqlite3.connect(db) as conn:
+        conn.execute("CREATE TABLE EmptyDAO (database_id INTEGER PRIMARY KEY)")
+    dest = tmp_path / "all_tables"
+    result = export_snapshot(db, ontology_path=ontology, neem_id="pickup",
+                             output_dir=dest, page_size=2)
+    assert result["tables"] == ["DemoDAO"]
+    assert verify_export(dest) == result
