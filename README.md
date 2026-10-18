@@ -1,5 +1,6 @@
 # TigerGraph GraphRAG
 
+> **neemGraph branch — OntologyRAGs extensions.** This branch adds experimental CRAM/AICOR ontology indexing, NEEM SQLite ingestion, document-to-RDF extraction contracts, semantic validation and TigerGraph assertion staging in `ontology_integration/`. See **[the branch feature and milestone guide](docs/ONTOLOGYRAGS_NEEMGRAPH.md)** and **[Docker build/test instructions](docs/DOCKER_NEEMGRAPH.md)**. The existing React frontend is under `graphrag-ui/`; the new ontology-specific CLI features are **not yet integrated into its UI**. Docker and live TigerGraph end-to-end acceptance remain pending.\n\n
 > ⚠️ **Disclaimer**  
 > - **Supported Backend:** TigerGraph is the only Vector and Graph DB supported in this project. Hybrid Search is the officially supported retrieval method; other retrieval methods, and the agentic chat engine that orchestrates them, are provided as-is for self-service use.
 > - **Limitations:** No official support is provided unless delivered through a Statement of Work (SOW) with the Solutions team. Customizations are customer-owned self-service to handle custom LLM service, prompt logic, UI integration, and pipeline orchestration. This project is provided "as is" without any warranties or guarantees.
