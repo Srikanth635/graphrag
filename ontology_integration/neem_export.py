@@ -34,7 +34,7 @@ def export_snapshot(path, *, ontology_path, neem_id, tables, output_dir,
             raise ValueError("Existing manifest; pass resume=True or use another output directory")
         if any(prior.get(k) != v for k,v in settings.items()):
             raise ValueError("Checkpoint settings or source fingerprint changed")
-        completed = list(prior.get("pages", []))
+        verify_export(directory)\n        completed = list(prior.get("pages", []))
     else:
         completed = []
         manifest_path.write_text(json.dumps({**settings, "pages": []}, indent=2) + "\n")
@@ -76,7 +76,7 @@ def export_snapshot(path, *, ontology_path, neem_id, tables, output_dir,
             page_index += 1
     if fingerprint(path) != source_hash:
         raise ValueError("Source database changed during export")
-    return json.loads(manifest_path.read_text())
+    return verify_export(directory)
 
 
 def verify_export(directory):
