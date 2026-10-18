@@ -1,6 +1,6 @@
-services:
+# neemGraph: custom backend image includes ontology_integration.\n# TigerGraph database is external by default; configure configs/server_config.json.\nservices:
   graphrag:
-    image: tigergraph/graphrag:latest
+    image: ontologyrag/graphrag:neemGraph
     platform: linux/amd64
     container_name: graphrag
     build:
