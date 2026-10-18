@@ -1,0 +1,33 @@
+name: neemGraph Docker build verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [neemGraph]
+    paths:
+      - 'graphrag/Dockerfile'
+      - 'docker-compose.yml'
+      - 'docker-compose.ontology.override.example.yml'
+      - '.github/workflows/neemgraph-docker-build.yml'
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show checked-out commit
+        run: git rev-parse HEAD
+      - name: Check Docker and Compose
+        run: |
+          docker version
+          docker compose version
+          docker compose config --quiet
+      - name: Build ontology-enabled GraphRAG backend
+        run: docker compose build graphrag
+      - name: Smoke test ontology imports inside image
+        run: |
+          docker compose run --rm --no-deps graphrag \
+            python -c "import ontology_integration.neem_ingest, ontology_integration.semantic_validation, ontology_integration.document_pipeline, ontology_integration.tigergraph_staging; print('OntologyRAGs image import smoke OK')"
+      - name: Build existing React frontend
+        run: docker compose build graphrag-ui
