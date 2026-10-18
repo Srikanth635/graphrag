@@ -38,4 +38,5 @@ jobs:
             tests/test_neem_reconstruction.py \
             tests/test_neem_export.py \
             tests/test_neem_audit.py \
-            tests/test_neem_quality_gate.py
+            tests/test_neem_quality_gate.py \
+            tests/test_neem_identity.py
