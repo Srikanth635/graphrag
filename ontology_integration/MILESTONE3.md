@@ -1,62 +1,67 @@
-# Milestone 3: ontology-wide assertion envelope
+# Milestone 3 — Unified assertion contract (completed scoped foundation)
 
-This is the first Milestone 3 increment, deliberately independent of the
-existing TigerGraph GraphRAG runtime and of any specific CRAM/AICOR class.
+Milestone 3 provides a source-neutral RDF-compatible assertion interface,
+independent of any individual CRAM/AICOR class. It does **not** parse raw NEEM
+datasets, invoke the document LLM, reason over OWL, or write to TigerGraph.
 
-## Contract
+## Files
 
-`ontology_integration.assertions` contains:
+- `assertions.py`: RDF terms, statement IDs, source-specific assertion IDs,
+  provenance fields, timestamps, confidence, lifecycle and JSON.
+- `pipeline_contract.py`: deterministic/idempotent assertion batches;
+  JSON and JSONL round trips; RDFLib term conversion; loss-aware RDF
+  triple projection; declared ontology vocabulary checks; common adapter
+  input for NEEM, documents, and structured records.
+- `provenance.py`: in-memory transition journal with append-only JSONL event
+  serialization, replay and hash-checked per-assertion history chain.
+- `tests/test_ontology_assertions.py` and `tests/test_pipeline_contract.py`:
+  fixture-based regression checks.
 
-- `RDFTerm`: IRI, literal (datatype OR language), or scoped blank node.
-- `SourceEvidence`: source type, stable source ID, local record locator,
-  extraction method, optional excerpt and observation timestamp.
-- `Assertion`: RDF subject/predicate/object and optional graph name,
-  source evidence, ontology SHA-256, confidence, validity interval,
-  inference dependencies and lifecycle status.
-- `statement_id`: SHA-256 of the canonical RDF statement/quad, shared by
-  independent observations of the same statement.
-- `assertion_id`: SHA-256 of the statement ID plus source identity,
-  locator and extraction method. Two different sources are never collapsed.
-- Strict candidate -> validated -> asserted transitions; quarantine,
-  inferred and retraction states are supported.
-- JSON serialization, identity verification on deserialization and tests.
+## Run offline
 
-Run: `python -m pytest -q tests/test_ontology_assertions.py`.
+```bash
+python -m pip install rdflib pytest
+python -m pytest -q \
+  tests/test_ontology_registry.py \
+  tests/test_ontology_axioms.py \
+  tests/test_module_builder.py \
+  tests/test_ontology_assertions.py \
+  tests/test_pipeline_contract.py
+```
 
-## Critical distinctions
+Local smoke run: **16 tests passed** across combined local milestone
+fixtures (2026-10-18). These are local code tests, not hosted GitHub CI.
+The real uploaded CRAM/AICOR ontology was also used to verify the vocabulary
+check: 1,017 declared named classes, 966 declared properties, and recognition
+of `realizesDesignator` as a declared object property.
 
-- A document stating a fact and a NEEM log recording the same fact share
-  the **statement_id**, but have different **assertion_id** values.
-- The stable identifiers are **content identities**, not graph identity
-  resolution. Distinct aliases referring to the same entity remain distinct.
-- Identity deliberately excludes confidence, lifecycle and validity times:
-  changing those metadata does not change the source-backed assertion ID.
-  A history/event store will be needed to track changes over time.
-- Blank nodes have source-local scope; original source IDs must be stable.
-- The ontology SHA-256 is a version fingerprint, **not** an ontology
-  membership check. Validate actual class/property vocabulary later.
-- `INFERRED` status requires parent statement IDs; this code does not
-  perform OWL reasoning or calculate inference derivations.
-- A validated assertion is not automatically a true, consistent or
-  source-supported fact. SHACL/OWL semantic checking belongs to Milestone 6.
-- A complete provenance implementation should add document span offsets,
-  temporal provenance, confidence calibration, persistent audit events and
-  graph loading later. Do not discard supporting source records.
+## Identity and interoperability guarantees
 
-## Acceptance scope
+- Different sources may assert the same RDF statement while retaining distinct
+  assertion IDs and independent evidence.
+- Reingesting the same exact batch produces the same batch ID.
+- Repeated identical assertions collapse in a batch; conflicting snapshots
+  sharing an assertion ID are rejected, not silently overwritten.
+- Assertion JSONL preserves evidence and graph context. A plain RDF Graph
+  export deliberately rejects named graph assertions and scoped blank nodes
+  because projection could lose essential information.
+- Source-specific input records must already have mapped RDF terms. This is
+  an **adapter boundary**, not a parser for arbitrary JSON/NEEM schemas.
+- Ontology vocabulary `strict=True` checks declared class and property IRIs;
+  it does not check OWL domain/range implications, entailments, SHACL rules
+  or imported external vocabulary. An unknown IRI can be left for review
+  with `strict=False`.
+- Provenance events record status transitions and a replayable linked hash.
+  This catches accidental corruption of archived JSONL records, but it is
+  **not cryptographically authenticated** (an adversary could rewrite
+  the full chain). Use signed or externally anchored audit records for
+  adversarial tamper evidence.
+- Journal lifecycle history is memory-resident until explicitly serialized.
+  Persistent transactional event storage, entity-resolution merge histories,
+  source-span offsets, OWL reasoning and TigerGraph IO are future work.
 
-An offline local prototype passed five tests using RDF values,
-cross-source identity, JSON serialization, transition enforcement,
-source-scoped blank nodes and temporal validation.
+## Next milestone
 
-The connector has committed the implementation and pytest file to
-`neemGraph`; hosted CI on that exact branch is **not yet verified**.
-
-## Next increments
-
-1. Source-neutral assertion batch and idempotent serialization.
-2. RDFLib conversion tests and ontology IRI membership checks.
-3. Versioned provenance events and schema compatibility mapping for
-   NEEM, documents and structured adapters.
-
-No real-source ingestion or TigerGraph write operations are performed yet.
+Milestone 4: implement deterministic source adapters, starting with a
+representative NEEM export and one structured JSON fixture, then connect
+those adapters to the normalized assertion interface.
