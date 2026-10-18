@@ -24,8 +24,8 @@ def response_for(text):
 def test_end_to_end_replay_and_stable_mentions():
     text="The designator describes the target."
     def provider(req): return [response_for(req["text"])]
-    one=ingest_text(text,document_id="paper-1",ontology_index=INDEX,provider=provider,max_chars=100)
-    two=ingest_text(text,document_id="paper-1",ontology_index=INDEX,provider=provider,max_chars=100)
+    one=ingest_text(text,document_id="paper-1",ontology_index=INDEX,provider=provider,max_chars=100,overlap=20)
+    two=ingest_text(text,document_id="paper-1",ontology_index=INDEX,provider=provider,max_chars=100,overlap=20)
     assert one.to_dict()==two.to_dict()
     assert len(one.candidates.assertions)==1
     a=one.candidates.assertions[0]
@@ -43,13 +43,13 @@ def test_reject_non_grounded_mentions_and_unapproved_class():
         x["subject_mention"]["text"]="fabricated"
         return [x]
     with pytest.raises(ValueError,match="Mention text"):
-        ingest_text(text,document_id="paper",ontology_index=INDEX,provider=invalid,max_chars=100)
+        ingest_text(text,document_id="paper",ontology_index=INDEX,provider=invalid,max_chars=100,overlap=20)
     def invalid_class(req):
         x=response_for(req["text"])
         x["object"]={"kind":"iri","value":EX+"Execution"}
         return [x]
     with pytest.raises(ValueError,match="Unapproved ontology class"):
-        ingest_text(text,document_id="paper",ontology_index=INDEX,provider=invalid_class,max_chars=100)
+        ingest_text(text,document_id="paper",ontology_index=INDEX,provider=invalid_class,max_chars=100,overlap=20)
 
 def test_reject_provider_fabricated_entity_iris():
     text="The designator describes the target."
@@ -58,21 +58,21 @@ def test_reject_provider_fabricated_entity_iris():
         x["subject_iri"]="urn:robot:allegedly-same"
         return [x]
     with pytest.raises(ValueError,match="Raw entity IRIs"):
-        ingest_text(text,document_id="paper",ontology_index=INDEX,provider=invalid,max_chars=100)
+        ingest_text(text,document_id="paper",ontology_index=INDEX,provider=invalid,max_chars=100,overlap=20)
 
 def test_replay_and_no_match():
     text="The designator describes the target."
-    chunk=chunk_text(text,document_id="paper",max_chars=100)[0]
+    chunk=chunk_text(text,document_id="paper",max_chars=100,overlap=20)[0]
     saved={chunk.chunk_id:[response_for(text)]}
-    batch=ingest_text(text,document_id="paper",ontology_index=INDEX,provider=replay_provider(saved),max_chars=100)
+    batch=ingest_text(text,document_id="paper",ontology_index=INDEX,provider=replay_provider(saved),max_chars=100,overlap=20)
     assert len(batch.candidates.assertions)==1
     no_match=ingest_text("Unrelated astronomy",document_id="paper",ontology_index=INDEX,
-                         provider=lambda _:pytest.fail("No matched ontology module"),max_chars=100)
+                         provider=lambda _:pytest.fail("No matched ontology module"),max_chars=100,overlap=20)
     assert no_match.selected_chunks==0
     assert no_match.chunks==1
     assert len(no_match.candidates.assertions)==0
     with pytest.raises(ValueError,match="recorded extraction response"):
-        ingest_text(text,document_id="other",ontology_index=INDEX,provider=replay_provider(saved),max_chars=100)
+        ingest_text(text,document_id="other",ontology_index=INDEX,provider=replay_provider(saved),max_chars=100,overlap=20)
 
 def test_mention_id_is_source_scoped():
     h="a"*64
