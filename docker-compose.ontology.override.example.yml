@@ -1,0 +1,8 @@
+# Example: opt-in mount for your private NEEM SQL/OWL test files.
+# Usage:
+# docker compose -f docker-compose.yml -f docker-compose.ontology.override.example.yml run --rm --no-deps graphrag ...
+services:
+  graphrag:
+    volumes:
+      - ./local-data:/data:ro
+      - ./local-output:/output
