@@ -18,6 +18,7 @@ on:
       - 'tests/test_m6_remaining.py'
       - 'tests/test_axiom_checks.py'
       - 'tests/test_review_report.py'
+      - 'tests/test_shacl_review.py'
       - '.github/workflows/ontology-neem-ci.yml'
   workflow_dispatch:
 
@@ -56,4 +57,5 @@ jobs:
             tests/test_entity_resolution.py \
             tests/test_m6_remaining.py \
             tests/test_axiom_checks.py \
-            tests/test_review_report.py
+            tests/test_review_report.py \
+            tests/test_shacl_review.py
