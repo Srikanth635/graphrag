@@ -25,8 +25,6 @@ def ingest_neem(sqlite_path, ontology_path, *, neem_id, output_dir,
     quality=quality_report(sqlite_path,ontology_path,neem_id=neem_id)
     if quality["integrity"]!="ok" or quality["foreign_key_violations"]:
         raise ValueError("Source SQLite integrity failed")
-    if quality["missing_fk_targets"] if "missing_fk_targets" in quality else False:
-        raise ValueError("Missing foreign key targets")
     coverage=scan_database(sqlite_path)
     if coverage["missing_fk_targets"]:
         raise ValueError("Unresolved source foreign keys")
