@@ -93,7 +93,7 @@ keys into the repository or sample config.
 The upstream application includes the React + TypeScript + Vite
 `graphrag-ui/` frontend. Its routes include login (`/`), chat
 (`/chat`), graph setup (`/setup/kg-admin`), document ingestion
-(`/setup/ingest-graph`, see the routes in `src/main.tsx`), and trace
+(`/setup/kg-admin/ingest`, see the routes in `src/main.tsx`), and trace
 logs. The browser entry point through nginx is `http://localhost`
 with default ports in `docker-compose.yml`.
 
