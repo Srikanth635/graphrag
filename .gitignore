@@ -18,3 +18,12 @@ __pycache__/
 
 # Release docs
 /RELEASE_NOTES.md
+
+# OntologyRAGs local datasets, model credentials and generated review outputs
+/local-data/
+/pickup-staging/
+/pickup-document-output/
+/*_stage_plan.json
+/*_review.json
+/.env
+/.env.local
