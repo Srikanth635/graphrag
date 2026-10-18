@@ -19,7 +19,7 @@ STAGING_ATTRIBUTES = frozenset({
     "statement_id", "subject_kind", "subject_value", "predicate_iri",
     "object_kind", "object_value", "object_datatype", "object_language",
     "source_type", "source_id", "source_locator", "source_method",
-    "source_excerpt", "ontology_sha256", "assertion_status",
+    "source_excerpt", "source_recorded_at", "derived_from_json", "ontology_sha256", "assertion_status",
     "confidence", "valid_from", "valid_to",
 })
 ALLOWED_STATUSES = frozenset({
@@ -56,6 +56,8 @@ def stage_row(assertion: Assertion) -> dict:
         "source_locator": assertion.evidence.locator,
         "source_method": assertion.evidence.method,
         "source_excerpt": assertion.evidence.excerpt or "",
+        "source_recorded_at": assertion.evidence.recorded_at or "",
+        "derived_from_json": json.dumps(list(assertion.derived_from), separators=(",", ":")),
         "ontology_sha256": assertion.ontology_sha256,
         "assertion_status": assertion.status.value,
         "confidence": "" if assertion.confidence is None else format(assertion.confidence, ".17g"),
