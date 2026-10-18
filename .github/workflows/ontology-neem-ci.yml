@@ -40,4 +40,5 @@ jobs:
             tests/test_neem_audit.py \
             tests/test_neem_quality_gate.py \
             tests/test_neem_identity.py \
-            tests/test_neem_full_scan.py
+            tests/test_neem_full_scan.py \
+            tests/test_neem_ingest.py
