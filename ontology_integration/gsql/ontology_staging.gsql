@@ -1,0 +1,28 @@
+// Milestone 7: isolated *staging* graph, not GraphRAG's trusted KG.
+// Review in the target TigerGraph version before executing.
+// Do not execute against an existing application graph.
+CREATE VERTEX OntologyAssertionStage (
+  PRIMARY_ID assertion_id STRING,
+  statement_id STRING,
+  subject_kind STRING,
+  subject_value STRING,
+  predicate_iri STRING,
+  object_kind STRING,
+  object_value STRING,
+  object_datatype STRING,
+  object_language STRING,
+  source_type STRING,
+  source_id STRING,
+  source_locator STRING,
+  source_method STRING,
+  source_excerpt STRING,
+  source_recorded_at STRING,
+  derived_from_json STRING,
+  ontology_sha256 STRING,
+  assertion_status STRING,
+  confidence STRING,
+  valid_from STRING,
+  valid_to STRING
+) WITH primary_id_as_attribute="true";
+
+CREATE GRAPH OntologyStagingGraph (OntologyAssertionStage);
