@@ -21,6 +21,7 @@ __pycache__/
 
 # OntologyRAGs local datasets, model credentials and generated review outputs
 /local-data/
+/local-output/
 /pickup-staging/
 /pickup-document-output/
 /*_stage_plan.json
